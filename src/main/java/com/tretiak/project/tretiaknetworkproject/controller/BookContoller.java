@@ -4,6 +4,7 @@ import com.tretiak.project.tretiaknetworkproject.exceptions.CheckBindingExceptio
 import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.CreateBookDto;
 import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.CreateBookResponseDto;
 import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.GetBookDto;
+import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.UpdateBookDto;
 import com.tretiak.project.tretiaknetworkproject.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +14,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.UpdateBookDto;
+
 import java.util.List;
 
 @RestController
 
 @RequestMapping("/api/addBook")
-//@PreAuthorize("isAuthenticated()")
+@PreAuthorize("isAuthenticated()")
 public class BookContoller {
     private final BookService bookService;
 
@@ -29,7 +32,7 @@ public class BookContoller {
     }
 
     @GetMapping("/getAll")
-  //  @PreAuthorize("permitAll()")
+    @PreAuthorize("isAuthenticated()")
     public @ResponseBody List<GetBookDto> getAllBooks() {
         return bookService.getAll();
     }
@@ -45,16 +48,28 @@ public class BookContoller {
     }
 
     @GetMapping("/get/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GetBookDto> getBook(@PathVariable Long id) {
         return new ResponseEntity<>(bookService.getOne(id), HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")
- //   @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         bookService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+/*
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<GetBookDto> updateBook(@PathVariable Long id, @Valid @RequestBody UpdateBookDto updateBookDto, BindingResult bindingResult) {
+        CheckBindingExceptions.check(bindingResult);
+        var updatedBook = bookService.update(id, updateBookDto);
+        return new ResponseEntity<>(updatedBook, HttpStatus.OK);
+    }
+
+ */
 
 
     /*

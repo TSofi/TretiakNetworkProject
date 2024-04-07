@@ -75,6 +75,7 @@ public class LoanService {
         return MapLoan.toGetLoanDto(loanEntity);
     }
 
+
     @PreAuthorize("hasRole('ADMIN') or isAuthenticated() and this.isOwner(authentication.name, #loan.userId)")
     public CreateLoanResponseDto create(CreateLoanDto loan) {
         UserEntity user = userRepository.findById(loan.getUserId()).orElseThrow(NotFoundException::user);
@@ -96,6 +97,7 @@ public class LoanService {
         );
     }
 
+
     public void delete(Long id) {
         if(!loanRepository.existsById(id)) {
             log.info("Loan with id: {} not found", id);
@@ -103,5 +105,41 @@ public class LoanService {
         }
         loanRepository.deleteById(id);
     }
+
+/*
+// doesn't work properly for adding loan
+    @PreAuthorize("hasRole('ADMIN') or isAuthenticated() and this.isOwner(authentication.name, #loan.userId)")
+    public CreateLoanResponseDto create(CreateLoanDto loan) {
+        UserEntity user = userRepository.findById(loan.getUserId()).orElseThrow(NotFoundException::user);
+        BookEntity book = bookRepository.findById(loan.getBookId()).orElseThrow(NotFoundException::book);
+
+        // Check if there are available copies of the book
+        if (book.getAvailableCopies() <= 0) {
+            throw new RuntimeException("No available copies of the book");
+        }
+        // Decrease the number of available copies
+        book.setAvailableCopies(book.getAvailableCopies() - 1);
+        bookRepository.save(book);
+
+        LocalDate currentDate = LocalDate.now();
+        LoanEntity loanEntity = new LoanEntity();
+        loanEntity.setUser(user);
+        loanEntity.setBook(book);
+        loanEntity.setLoanDate(currentDate);
+        loanEntity.setDueDate(loan.getDueDate());
+        var newLoan = loanRepository.save(loanEntity);
+
+        return new CreateLoanResponseDto(
+                newLoan.getId(),
+                newLoan.getUser().getId(),
+                newLoan.getBook().getId(),
+                newLoan.getLoanDate(),
+                newLoan.getDueDate()
+        );
+    }
+
+ */
+
+
 
 }

@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,13 +29,15 @@ public class LoanController {
     }
 
     @GetMapping("/getAll")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GetLonsList> getAll(@RequestParam(required = false) Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         GetLonsList loans = loanService.getAll(userId, page, size);
         return new ResponseEntity<>(loans, HttpStatus.OK);
     }
 
     @PostMapping("/add")
-    @ResponseStatus(code = HttpStatus.CREATED) //code 201
+    @PreAuthorize("isAuthenticated()")
+    @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<CreateLoanResponseDto> create(@Valid @RequestBody CreateLoanDto loan, BindingResult bindingResult) {
         CheckBindingExceptions.check(bindingResult);
         var newLoan = loanService.create(loan);
@@ -42,11 +45,13 @@ public class LoanController {
     }
 
     @GetMapping("/get/{id}")
+    @PreAuthorize("isAuthenticated()")
     public GetLoanDto getLoan(@PathVariable Long id) {
         return loanService.getOne(id);
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         loanService.delete(id);
         return ResponseEntity.noContent().build();

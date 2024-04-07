@@ -1,13 +1,10 @@
 package com.tretiak.project.tretiaknetworkproject.service;
 
 // this clas for some additional check to check is everything is ok
+import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.*;
 import com.tretiak.project.tretiaknetworkproject.infrastrucuture.map.MapBook;
 import com.tretiak.project.tretiaknetworkproject.exceptions.NotFoundException;
 import com.tretiak.project.tretiaknetworkproject.exceptions.AlreadyExistsException;
-import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.AddBookResponseDto;
-import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.GetBookDto;
-import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.CreateBookDto;
-import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.CreateBookResponseDto;
 import com.tretiak.project.tretiaknetworkproject.infrastrucuture.entity.BookEntity;
 import com.tretiak.project.tretiaknetworkproject.infrastrucuture.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -33,13 +30,30 @@ public class BookService {
         var books = bookRepository.findAll();
 
         return books.stream()
-                .map(MapBook::toGetBookDto).collect(Collectors.toList());
+                .map(book -> new GetBookDto(
+                book.getId(),
+                book.getIsbn(),
+                book.getTitle(),
+                book.getAuthor(),
+                book.getPublisher(),
+                book.getYearPublished(),
+                book.getAvailableCopies()
+        ))
+                .collect(Collectors.toList());
     }
 
     public GetBookDto getOne(Long id) {
         var bookEntity = bookRepository.findById(id).orElseThrow(NotFoundException::book);
 
-        return MapBook.toGetBookDto(bookEntity);
+        return new GetBookDto(
+                bookEntity.getId(),
+                bookEntity.getIsbn(),
+                bookEntity.getTitle(),
+                bookEntity.getAuthor(),
+                bookEntity.getPublisher(),
+                bookEntity.getYearPublished(),
+                bookEntity.getAvailableCopies()
+        );
     }
 
     public CreateBookResponseDto create(CreateBookDto book) {
@@ -67,7 +81,7 @@ public class BookService {
                 newBook.getAuthor(),
                 newBook.getPublisher(),
                 newBook.getYearPublished(),
-                newBook.getAvailableCopies()
+                newBook.getAvailableCopies() // Map availableCopies to isAvailable
         );
     }
 
@@ -85,6 +99,31 @@ public class BookService {
         }
         bookRepository.deleteById(id);
     }
+
+    /*
+    public GetBookDto update(Long id, UpdateBookDto updateBookDto) {
+        var bookEntity = bookRepository.findById(id).orElseThrow(NotFoundException::book);
+
+        bookEntity.setTitle(updateBookDto.getTitle());
+        bookEntity.setAuthor(updateBookDto.getAuthor());
+        bookEntity.setPublisher(updateBookDto.getPublisher());
+        bookEntity.setYearPublished(updateBookDto.getYearPublished());
+        bookEntity.setAvailableCopies(updateBookDto.getAvailableCopies());
+
+        var updatedBook = bookRepository.save(bookEntity);
+
+        return new GetBookDto(
+                updatedBook.getId(),
+                updatedBook.getIsbn(),
+                updatedBook.getTitle(),
+                updatedBook.getAuthor(),
+                updatedBook.getPublisher(),
+                updatedBook.getYearPublished(),
+                //updatedBook.getAvailableCopies()
+        );
+    }
+
+     */
 
 
 }

@@ -7,9 +7,9 @@ public class GetBookDto {
     private String author;
     private String publisher;
     private int publicationYear;
-    private boolean isAvailable;
+    private int isAvailable;
 
-    public GetBookDto(Long id, String isbn, String title, String author, String publisher, int publicationYear, boolean isAvailable) {
+    public GetBookDto(Long id, String isbn, String title, String author, String publisher, int publicationYear, int isAvailable) {
         this.id = id;
         this.isbn = isbn;
         this.title = title;
@@ -70,11 +70,11 @@ public class GetBookDto {
         this.publicationYear = publicationYear;
     }
 
-    public boolean isAvailable() {
+    public int isAvailable() {
         return isAvailable;
     }
 
-    public void setAvailable(boolean available) {
+    public void setAvailable(int available) {
         isAvailable = available;
     }
 }
