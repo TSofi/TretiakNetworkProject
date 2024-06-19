@@ -14,7 +14,7 @@ public class MapBook {
                 bookEntity.getAuthor(),
                 bookEntity.getPublisher(),
                 bookEntity.getYearPublished(),
-                bookEntity.getAvailableCopies()
+                bookEntity.getAvailableCopies()>0
         );
     }
 }

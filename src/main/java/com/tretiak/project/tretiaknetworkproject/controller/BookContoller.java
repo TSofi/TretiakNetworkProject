@@ -4,7 +4,8 @@ import com.tretiak.project.tretiaknetworkproject.exceptions.CheckBindingExceptio
 import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.CreateBookDto;
 import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.CreateBookResponseDto;
 import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.GetBookDto;
-import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.UpdateBookDto;
+import com.tretiak.project.tretiaknetworkproject.infrastrucuture.entity.BookEntity;
+import com.tretiak.project.tretiaknetworkproject.infrastrucuture.repository.BookRepository;
 import com.tretiak.project.tretiaknetworkproject.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,22 +14,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import com.tretiak.project.tretiaknetworkproject.infrastrucuture.dtos.book.UpdateBookDto;
-
 import java.util.List;
 
 @RestController
 
 @RequestMapping("/api/addBook")
-@PreAuthorize("isAuthenticated()")
 public class BookContoller {
     private final BookService bookService;
+    private final BookRepository bookRepository;
 
 
     @Autowired
-    public BookContoller(BookService bookService) {
+    public BookContoller(BookService bookService, BookRepository bookRepository) {
         this.bookService = bookService;
+        this.bookRepository = bookRepository;
     }
 
     @GetMapping("/getAll")
@@ -38,12 +37,12 @@ public class BookContoller {
     }
 
 
-    @PostMapping
+    @PostMapping("/create")
     @ResponseStatus(code = HttpStatus.CREATED)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<CreateBookResponseDto> create(@Valid @RequestBody CreateBookDto book, BindingResult bindingResult) {
         CheckBindingExceptions.check(bindingResult);
-        var newBook = bookService.create(book);
+        CreateBookResponseDto newBook = bookService.create(book);
         return new ResponseEntity<>(newBook, HttpStatus.CREATED);
     }
 
@@ -60,6 +59,23 @@ public class BookContoller {
         return ResponseEntity.noContent().build();
     }
 
+
+    @GetMapping("/autocomplete")
+    public ResponseEntity<List<String>> autocomplete(@RequestParam("query") String query) {
+        List<String> suggestions = bookService.autocomplete(query);
+        return ResponseEntity.ok(suggestions);
+    }
+
+    /*
+    @GetMapping("/autocomplete")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<GetBookDto>> autocompleteBooks(@RequestParam("query") String query) {
+        List<GetBookDto> books = bookService.findBooksByTitle(query); // Assuming you have a service method to query books by title
+        return ResponseEntity.ok(books);
+    }
+
+     */
+
 /*
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -70,21 +86,6 @@ public class BookContoller {
     }
 
  */
-
-
-    /*
-
-    // Method to handle POST requests for adding a book
-    @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<BookEntity> addBook(@RequestBody BookEntity bookEntity) {
-        BookEntity savedBook = bookService.addBook(bookEntity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
-    }
-
-     */
-
-
 
 
 }

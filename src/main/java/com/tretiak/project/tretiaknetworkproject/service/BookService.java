@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -37,7 +38,7 @@ public class BookService {
                 book.getAuthor(),
                 book.getPublisher(),
                 book.getYearPublished(),
-                book.getAvailableCopies()
+                book.getAvailableCopies() >0
         ))
                 .collect(Collectors.toList());
     }
@@ -52,7 +53,7 @@ public class BookService {
                 bookEntity.getAuthor(),
                 bookEntity.getPublisher(),
                 bookEntity.getYearPublished(),
-                bookEntity.getAvailableCopies()
+                bookEntity.getAvailableCopies()>0
         );
     }
 
@@ -98,6 +99,29 @@ public class BookService {
             throw NotFoundException.book();
         }
         bookRepository.deleteById(id);
+    }
+    public List<String> autocomplete(String query) {
+        List<String> suggestions = Arrays.asList("Crown of Midnight", "Throne of Glass", "Kingdom of Ash");
+        return suggestions.stream()
+                .filter(title -> title.toLowerCase().contains(query.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    public List<GetBookDto> findBooksByTitle(String query) {
+        List<BookEntity> books = bookRepository.findByTitleContainingIgnoreCase(query);
+        return books.stream().map(book -> mapToGetBookDto(book)).collect(Collectors.toList());
+    }
+
+    private GetBookDto mapToGetBookDto(BookEntity book) {
+        return new GetBookDto(
+                book.getId(),
+                book.getIsbn(),
+                book.getTitle(),
+                book.getAuthor(),
+                book.getPublisher(),
+                book.getYearPublished(),
+                book.getAvailableCopies() > 0
+        );
     }
 
     /*
